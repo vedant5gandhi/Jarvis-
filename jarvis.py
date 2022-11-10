@@ -1342,14 +1342,14 @@ def yun ( ) :
 
 
 def call ( person ) :
-	call_book = {'papa' : '9824273056' , 'mom' : '9898630677' , 'nishu' : '9428478550' ,
-				 'parikshit' : '8238185886'}  # ------------- List of phone number
+	call_book = {'papa' : '**********' , 'mom' : '**********' , 'nishu' : '**********' ,
+				 'parikshit' : '**********'}  # ------------- List of phone number
 	if person in call_book :  # ------------------------------ Searching the call book
 		ph_no = call_book [ person ]  # ------------------------ Phone no. of the person
 
 		command2 = 'adb shell am start -a android.intent.action.CALL -d tel:+91' + ph_no  # ----cmd. to make call
 		command3 = 'adb shell input tap 251 1660'  # --------------- cmd. to tap the speaker button
-		command1 = 'adb connect 10.22.178.157:5555'
+		command1 = 'adb connect ***.******.**********.***'
 		speak ( 'calling.. ' + person )
 		os.system ( command1 )
 		time.sleep ( 2 )
