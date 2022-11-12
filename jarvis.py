@@ -1,5 +1,6 @@
 # Project jarvis
 import os
+os.system('python.exe -m pip install --upgrade pip')
 try:
 	from tkinter import *
 	import tkinter.messagebox
@@ -14,6 +15,11 @@ try:
 	import sys
 except:
 	os.system('pip install sys')
+try:
+	import re
+	import urllib.request as ytsearch
+except:
+	os.system('pip install urllib')		
 try:
 	import threading
 except:
@@ -85,8 +91,10 @@ except:
 try:
 	import pyttsx3
 	import speech_recognition as sr
+	from googletrans import Translator
 except:
-	os.system('pip install speech-recognition')
+	os.system('pip install googletrans')
+	os.system('pip install SpeechRecognition')
 	os.system('pip install pyttsx3')
 try:
 	import speedtest
@@ -176,17 +184,28 @@ def takecommand ( ) :
 	r = sr.Recognizer ( )
 	with sr.Microphone ( ) as source :
 		r.pause_threshold = 1
-		audio = r.listen ( source )
+		audio = r.listen ( source, 0, 8 )
 
 	try :
-		query = r.recognize_google ( audio , language = 'en-in' )
+		query = r.recognize_google ( audio , language = 'hi' )
 
 	except Exception as e :
 		# speak(e)
-		speak ( "Say that again please..." )  # Say that again will be speaked in case of improper voice
-		return "None"  # None string will be returned
-
+		return ""  # None string will be returned
+	query = str(query).lower()
 	return query
+
+def Trans (Text) :
+	line = str(Text)
+	translate = Translator()
+	result = translate.translate(line)
+	data = result.text
+	return data
+
+def miccr ( ) :
+	query = takecommand ( )
+	data = Trans(query)	
+	return data
 
 def latestnews ( ) :
 	api_dict = {
@@ -202,7 +221,7 @@ def latestnews ( ) :
 	url = None
 	speakrrr = 'Which field news do you want, [business] , [health] , [technology], [sports] , [entertainment] , [science]'
 	speak ( speakrrr )
-	field = takecommand ( )
+	field = miccr ( )
 	for key , value in api_dict.items ( ) :
 		if key.lower ( ) in field.lower ( ) :
 			url = value
@@ -226,7 +245,7 @@ def latestnews ( ) :
 		news_url = articles [ "url" ]
 		speak ( f"for more info visit: {news_url}" )
 		speak('Say 1 to continue and 2 to stop')
-		a = takecommand()
+		a = miccr ( )
 		if str ( a ) == "1" :
 			pass
 		elif str ( a ) == "2" :
@@ -264,58 +283,58 @@ def is_admin ( ) :
 		return False
 
 
-if is_admin ( ) :
-	current_time = datetime.datetime.now ( ).strftime ( "%H:%M" )
-	speak("Please tell the time you want to end focus mode")
-	Stop_time = takecommand()
-	a = current_time.replace ( ":" , "." )
-	a = float ( a )
-	b = Stop_time.replace ( ":" , "." )
-	b = float ( b )
-	Focus_Time = b - a
-	Focus_Time = round ( Focus_Time , 3 )
-	host_path = 'C:\Windows\System32\drivers\etc\hosts'
-	redirect = '127.0.0.1'
-
-	speak ( current_time )
-	time.sleep ( 2 )
-	website_list = [ "www.facebook.com" , "facebook.com" ]  # Enter the websites that you want to block
-	if (current_time < Stop_time) :
-		with open ( host_path , "r+" ) as file :  # r+ is writing+ reading
-			content = file.read ( )
-			time.sleep ( 2 )
-			for website in website_list :
-				if website in content :
-					pass
-				else :
-					file.write ( f"{redirect} {website}\n" )
-					speak ( "DONE" )
-					time.sleep ( 1 )
-			speak ( "FOCUS MODE TURNED ON !!!!" )
-
-	while True :
-
+	if is_admin ( ) :
 		current_time = datetime.datetime.now ( ).strftime ( "%H:%M" )
-		website_list = [ "www.facebook.com" , "facebook.com" ]  # Enter the websites that you want to block
-		if (current_time >= Stop_time) :
-			with open ( host_path , "r+" ) as file :
-				content = file.readlines ( )
-				file.seek ( 0 )
+		speak("Please tell the time you want to end focus mode")
+		Stop_time = Trans()
+		a = current_time.replace ( ":" , "." )
+		a = float ( a )
+		b = Stop_time.replace ( ":" , "." )
+		b = float ( b )
+		Focus_Time = b - a
+		Focus_Time = round ( Focus_Time , 3 )
+		host_path = 'C:\Windows\System32\drivers\etc\hosts'
+		redirect = '127.0.0.1'
 
-				for line in content :
-					if not any ( website in line for website in website_list ) :
-						file.write ( line )
+		speak ( current_time )
+		time.sleep ( 2 )
+		website_list = [ "www.facebook.com" , "facebook.com" , "www.youtube.com" , "youtube.com"]  # Enter the websites that you want to block
+		if (current_time < Stop_time) :
+			with open ( host_path , "r+" ) as file :  # r+ is writing+ reading
+				content = file.read ( )
+				time.sleep ( 2 )
+				for website in website_list :
+					if website in content :
+						pass
+					else :
+						file.write ( f"{redirect} {website}\n" )
+						speak ( "DONE" )
+						time.sleep ( 1 )
+				speak ( "FOCUS MODE TURNED ON !!!!" )
 
-				file.truncate ( )
+		while True :
 
-				speak ( "Websites are unblocked !!" )
-				file = open ( "focus.txt" , "a" )
-				file.write ( f",{Focus_Time}" )  # Write a 0 in focus.txt before starting
-				file.close ( )
-				break
+			current_time = datetime.datetime.now ( ).strftime ( "%H:%M" )
+			website_list = [ "www.facebook.com" , "facebook.com" ]  # Enter the websites that you want to block
+			if (current_time >= Stop_time) :
+				with open ( host_path , "r+" ) as file :
+					content = file.readlines ( )
+					file.seek ( 0 )
 
-else :
-	ctypes.windll.shell32.ShellExecuteW ( None , "runas" , sys.executable , " ".join ( sys.argv ) , None , 1 )
+					for line in content :
+						if not any ( website in line for website in website_list ) :
+							file.write ( line )
+
+					file.truncate ( )
+
+					speak ( "Websites are unblocked !!" )
+					file = open ( "focus.txt" , "a" )
+					file.write ( f",{Focus_Time}" )  # Write a 0 in focus.txt before starting
+					file.close ( )
+					break
+
+	else :
+		ctypes.windll.shell32.ShellExecuteW ( None , "runas" , sys.executable , " ".join ( sys.argv ) , None , 1 )
 
 
 def sk () :
@@ -431,7 +450,6 @@ def kun ( ) :
 			center = fore_finger
 			thumb = (landmarks [ 4 ] [ 0 ] , landmarks [ 4 ] [ 1 ])
 			cv2.circle ( frame , center , 3 , (0 , 255 , 0) , -1 )
-			speak ( center [ 1 ] - thumb [ 1 ] )
 			if (thumb [ 1 ] - center [ 1 ] < 30) :
 				bpoints.append ( deque ( maxlen = 512 ) )
 				blue_index += 1
@@ -542,7 +560,7 @@ def Calc ( query ) :
 
 def kkun () :
 	speak('Speak the url of the qrcode')
-	s = takecommand()
+	s = Trans()
 	n = 'qr'
 	n = n + ".svg"
 	url = pyqrcode.create ( s )
@@ -1196,7 +1214,7 @@ def sendEmail ( to , content ) :
 	server = smtplib.SMTP ( 'smtp.gmail.com' , 587 )
 	server.ehlo ( )
 	server.starttls ( )
-	server.login ( 'vedantgandhi05@gmail.com' , 'bjsbviujlnmdwghs' )
+	server.login ( 'vedantgandhi05@gmail.com' , 'hoernkwsszpzaseu' )
 	server.sendmail ( 'vedantgandhi05@gmail.com' , to , content )
 	server.close ( )
 
@@ -1300,7 +1318,7 @@ def run_module ( self ) :
 
 def yun ( ) :
 	speak ( 'Do you want recorded audio or live audio? Yes for recorded and no for live audio' )
-	q = takecommand ( )
+	q = miccr ( )
 	if q == 'yes' :
 		try :
 			with open ( 'C:\\Users\\vedan\\Desktop\\book.pdf' , 'rb' ) as book :
@@ -1342,14 +1360,13 @@ def yun ( ) :
 
 
 def call ( person ) :
-	call_book = {'papa' : '**********' , 'mom' : '**********' , 'nishu' : '**********' ,
-				 'parikshit' : '**********'}  # ------------- List of phone number
+	call_book = {'papa' : '9824273056' , 'mom' : '9898630677'}  # ------------- List of phone number
 	if person in call_book :  # ------------------------------ Searching the call book
 		ph_no = call_book [ person ]  # ------------------------ Phone no. of the person
 
 		command2 = 'adb shell am start -a android.intent.action.CALL -d tel:+91' + ph_no  # ----cmd. to make call
-		command3 = 'adb shell input tap 251 1660'  # --------------- cmd. to tap the speaker button
-		command1 = 'adb connect ***.******.**********.***'
+		command3 = 'adb shell input tap 276 1636'  # --------------- cmd. to tap the speaker button
+		command1 = 'adb connect 192.168.5.171:5556'
 		speak ( 'calling.. ' + person )
 		os.system ( command1 )
 		time.sleep ( 2 )
@@ -1371,7 +1388,7 @@ def task ( ) :
 
 		while True :
 			# if 1:
-			query = takecommand ( ).lower ( )  # Converting user query into lower case
+			query = miccr ( ).lower ( )  # Converting user query into lower case
 
 			if 'open' in query :
 
@@ -1426,6 +1443,9 @@ def task ( ) :
 			elif 'draw' in query :
 				kun ( )
 
+			elif 'play song' in query :
+				hhyt ( )
+
 			elif 'youtube' in query :
 				query = query.replace ( 'youtube' , '' )
 				speak ( 'Playing' + query )
@@ -1471,7 +1491,7 @@ def task ( ) :
 				temp = data.find ( "div" , class_ = "BNeawe" ).text
 				speak ( f"current{search} is {temp}" )
 
-			elif 'play game' in query :
+			elif 'play game' in query or 'game mode' in query :
 				tkk()
 
 			elif 'clear' in query :
@@ -1494,7 +1514,7 @@ def task ( ) :
 
 			elif 'shutdown the system' in query :
 				speak ( "Are You sure you want to shutdown" )
-				shutdown = takecommand ( )
+				shutdown = miccr ( )
 				if shutdown == "yes" :
 					os.system ( "shutdown /s /t 1" )
 
@@ -1503,7 +1523,7 @@ def task ( ) :
 
 			elif 'call' in query :
 				speak ( "Whom Do you want to call?" )
-				person = takecommand ( )
+				person = miccr ( )
 				call ( person )
 
 			elif 'story' in query :
@@ -1548,14 +1568,11 @@ def task ( ) :
 				speak ( "good bye" )
 				exit ( )
 
-			elif 'game mode' in query :
-				tkk ( )
-
 			elif 'monkey mode' in query :
 				speak ( "Entering Monkey Mode" )
 				speak ( "Entering Monkey Mode" )
 				while True :
-					monkk = takecommand ( )
+					monkk = miccr ( )
 					speak ( monkk )
 					speak ( monkk )
 
@@ -1570,7 +1587,7 @@ def task ( ) :
 						   'i am okey ! How are you' ]
 				ans_q = random.choice ( stMsgs )
 				speak ( ans_q )
-				ans_take_from_user_how_are_you = takecommand ( )
+				ans_take_from_user_how_are_you = miccr ( )
 				if 'fine' in ans_take_from_user_how_are_you or 'happy' in ans_take_from_user_how_are_you or 'okey' in ans_take_from_user_how_are_you :
 					speak ( 'okey..' )
 				elif 'not' in ans_take_from_user_how_are_you or 'sad' in ans_take_from_user_how_are_you or 'upset' in ans_take_from_user_how_are_you :
@@ -1618,7 +1635,7 @@ def task ( ) :
 
 			elif 'focus mode' in query :
 				speak( "Are you sure that you want to enter focus mode :- [1 for YES / 2 for NO " )
-				a = takecommand ( )
+				a = miccr ( )
 				if (a == 1) :
 					speak ( "Entering the focus mode...." )
 					is_admin ( )
@@ -1633,7 +1650,7 @@ def task ( ) :
 			elif 'email varda' in query :
 				try :
 					speak ( "What should I say?" )
-					content = takecommand ( )
+					content = miccr ( )
 					to = 'vardagandhi@gmail.com'
 					sendEmail ( 'vedantgandhi05@gmail.com' , to , content )
 					speak ( "Email has been sent!" )
@@ -1644,7 +1661,7 @@ def task ( ) :
 			elif 'email papa' in query :
 				try :
 					speak ( "What should I say?" )
-					content = takecommand ( )
+					content = miccr ( )
 					to = 'drvjgandhi@gmail.com'
 					sendEmail ( 'vedantgandhi05@gmail.com' , to , content )
 					speak ( "Email has been sent!" )
@@ -1655,20 +1672,16 @@ def task ( ) :
 			elif 'email' in query :
 				try :
 					speak ( "Please tell me the email adress" )
-					quav = takecommand ( )
+					quav = miccr ( )
 
 					speak ( "What should I say?" )
-					content = takecommand ( )
+					content = miccr ( )
 					to = quav
 					sendEmail ( to , content )
 					speak ( "Email has been sent!" )
 				except Exception as e :
 					speak ( e )
 					speak ( "Sorry Sir. I was not able to send this email" )
-
-			if 'open code' in query :
-				speak ( "Opening my Code" )
-				os.startfile ( "C:\\Program Files\\JetBrains\\PyCharm Community Edition 2022.1.3\\bin\\pycharm64.exe" )
 
 			elif 'calculate' in query :
 				query = query.replace ( "calculate" , "" )
