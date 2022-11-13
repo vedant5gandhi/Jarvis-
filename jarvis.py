@@ -148,6 +148,16 @@ try:
 	from cvzone.HandTrackingModule import HandDetector
 except:
 	os.system('pip install cvzone')
+try:
+	import openai
+except:
+	os.system('pip install openai')
+try:
+	from dotenv import load_dotenv
+except:
+	os.system('pip install python-dotenv')				
+from Brain.AIBrain import *
+
 keyboard = Controller ( )
 
 engine = pyttsx3.init ( 'sapi5' )
@@ -168,44 +178,36 @@ def speak ( audio ) :  # here audio is var which contain text
 def wish ( ) :
 	hour = int ( datetime.datetime.now ( ).hour )
 	if hour >= 0 and hour < 12 :
-		speak ( "good morning sir, How can I help you" )
+		speak ( "Good morning sir, How can I help you" )
+		print ( "Good morning sir, How can I help you" )
 	elif hour >= 12 and hour < 15 :
-		speak ( "good afternoon sir, How can I help you" )
+		speak ( "Good afternoon sir, How can I help you" )
+		print ( "Good night sir, How can I help you" )
 	elif hour >= 15 and hour < 21 :
-		speak ( "good evening sir, How can I help you" )
+		speak ( "Good evening sir, How can I help you" )
+		print ( "Good evening sir, How can I help you" )
 	else :
-		speak ( "good night sir, How can I help you" )
+		speak ( "Good night sir, How can I help you" )
+		print ( "Good night sir, How can I help you" )
 
 
 # now convert audio to text
-def takecommand ( ) :
-	# It takes microphone input from the user and returns string output
+def takecommand():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening.....")
+        r.pause_threshold = 1
+        r.energy_threshold = 300
+        audio = r.listen(source,0,4)
 
-	r = sr.Recognizer ( )
-	with sr.Microphone ( ) as source :
-		r.pause_threshold = 1
-		audio = r.listen ( source, 0, 8 )
-
-	try :
-		query = r.recognize_google ( audio , language = 'hi' )
-
-	except Exception as e :
-		# speak(e)
-		return ""  # None string will be returned
-	query = str(query).lower()
-	return query
-
-def Trans (Text) :
-	line = str(Text)
-	translate = Translator()
-	result = translate.translate(line)
-	data = result.text
-	return data
-
-def miccr ( ) :
-	query = takecommand ( )
-	data = Trans(query)	
-	return data
+    try:
+        print("Understanding..")
+        query  = r.recognize_google(audio,language='en-in')
+        print(f"You Said: {query}\n")
+    except Exception as e:
+        print("Say that again")
+        return "None"
+    return query
 
 def latestnews ( ) :
 	api_dict = {
@@ -220,18 +222,18 @@ def latestnews ( ) :
 	content = None
 	url = None
 	speakrrr = 'Which field news do you want, [business] , [health] , [technology], [sports] , [entertainment] , [science]'
-	speak ( speakrrr )
-	field = miccr ( )
+	print ( speakrrr )
+	field = input("Enter : ")
 	for key , value in api_dict.items ( ) :
 		if key.lower ( ) in field.lower ( ) :
 			url = value
-			speak ( url )
-			speak ( "url was found" )
+			print ( url )
+			print ( "url was found" )
 			break
 		else :
 			url = True
 	if url is True :
-		speak ( "url not found" )
+		print ( "url not found" )
 
 	news = requests.get ( url ).text
 	news = json.loads ( news )
@@ -241,17 +243,18 @@ def latestnews ( ) :
 	for articles in arts :
 		article = articles [ "title" ]
 		speak ( article )
-		speak ( article )
+		print ( article )
 		news_url = articles [ "url" ]
 		speak ( f"for more info visit: {news_url}" )
-		speak('Say 1 to continue and 2 to stop')
-		a = miccr ( )
+		print('Type 1 to continue and 2 to stop')
+		a = input("Enter : ")
 		if str ( a ) == "1" :
 			pass
 		elif str ( a ) == "2" :
 			break
 
-	speak ( "thats all" )
+	print ( "thats all" )
+	speak ("that's all")
 
 
 def focus_graph ( ) :
@@ -266,6 +269,7 @@ def focus_graph ( ) :
 		x1.append ( i )
 
 	speak ( content )
+	print ( content )
 	y1 = content
 
 	pt.plot ( x1 , y1 , color = "red" , marker = "o" )
@@ -285,8 +289,8 @@ def is_admin ( ) :
 
 	if is_admin ( ) :
 		current_time = datetime.datetime.now ( ).strftime ( "%H:%M" )
-		speak("Please tell the time you want to end focus mode")
-		Stop_time = Trans()
+		print("Please tell the time you want to end focus mode")
+		Stop_time = input("Enter : ")
 		a = current_time.replace ( ":" , "." )
 		a = float ( a )
 		b = Stop_time.replace ( ":" , "." )
@@ -297,6 +301,7 @@ def is_admin ( ) :
 		redirect = '127.0.0.1'
 
 		speak ( current_time )
+		print ( current_time )
 		time.sleep ( 2 )
 		website_list = [ "www.facebook.com" , "facebook.com" , "www.youtube.com" , "youtube.com"]  # Enter the websites that you want to block
 		if (current_time < Stop_time) :
@@ -311,6 +316,7 @@ def is_admin ( ) :
 						speak ( "DONE" )
 						time.sleep ( 1 )
 				speak ( "FOCUS MODE TURNED ON !!!!" )
+				print ("FOCUS MODE TURNED ON !!!!")
 
 		while True :
 
@@ -328,6 +334,7 @@ def is_admin ( ) :
 					file.truncate ( )
 
 					speak ( "Websites are unblocked !!" )
+					print ( "Websites are UNblocked !!" )
 					file = open ( "focus.txt" , "a" )
 					file.write ( f",{Focus_Time}" )  # Write a 0 in focus.txt before starting
 					file.close ( )
@@ -349,6 +356,7 @@ def sk () :
 		cv2.imwrite ( "C:\\Users\\vedan\\Desktop\\sketch.png" , sketch_filter )
 	except :
 		speak ( 'Please make sure that your file is saved at desktop named as image.png.' )
+		print ( 'Please make sure that your file is saved at desktop named as image.png.' )
 
 
 def slay ( ) :
@@ -361,7 +369,7 @@ def slay ( ) :
 	say = rd.choice ( time ) + ", " + rd.choice ( person_name ) + "went to " + rd.choice (
 		place ) + "and found " + rd.choice ( find ) + "there. " + "And then he was very astonished."
 
-	speak ( say )
+	print ( say )
 
 def kun ( ) :
 	# Giving different arrays to handle colour points of different colour
@@ -538,6 +546,7 @@ def WolfRamAlpha ( query ) :
 		return answer
 	except :
 		speak ( "The value is not answerable" )
+		print("The Value is not answerable")
 
 
 def Calc ( query ) :
@@ -551,16 +560,16 @@ def Calc ( query ) :
 	Final = str ( Term )
 	try :
 		result = WolfRamAlpha ( Final )
-		speak ( f"{result}" )
-		speak ( result )
+		print ( f"{result}" )
+		print ( result )
 
 	except :
-		speak ( "The value is not answerable" )
+		print ( "The value is not answerable" )
 
 
 def kkun () :
-	speak('Speak the url of the qrcode')
-	s = Trans()
+	print('Enter the url of the qrcode')
+	s = input("Enter : ")
 	n = 'qr'
 	n = n + ".svg"
 	url = pyqrcode.create ( s )
@@ -627,7 +636,7 @@ def tic ( ) :
 		def btn1 ( self , x ) :
 			global flag1
 			if search ( x ) :
-				speak ( x )
+				print ( x )
 				self [ "text" ] = "X"
 				list1.remove ( x )
 				fg = 1
@@ -758,7 +767,7 @@ def tic ( ) :
 				kw ( ran ( ) )
 
 		def kw ( r ) :
-			speak ( flag1 )
+			print ( flag1 )
 			if r == 1 :
 				list1.remove ( r )
 				fg = 0
@@ -1318,7 +1327,7 @@ def run_module ( self ) :
 
 def yun ( ) :
 	speak ( 'Do you want recorded audio or live audio? Yes for recorded and no for live audio' )
-	q = miccr ( )
+	q = input("Enter : ")
 	if q == 'yes' :
 		try :
 			with open ( 'C:\\Users\\vedan\\Desktop\\book.pdf' , 'rb' ) as book :
@@ -1360,13 +1369,13 @@ def yun ( ) :
 
 
 def call ( person ) :
-	call_book = {'papa' : '9824273056' , 'mom' : '9898630677'}  # ------------- List of phone number
+	call_book = {'papa' : '**********' , 'mom' : '**********'}  # ------------- List of phone number
 	if person in call_book :  # ------------------------------ Searching the call book
 		ph_no = call_book [ person ]  # ------------------------ Phone no. of the person
 
 		command2 = 'adb shell am start -a android.intent.action.CALL -d tel:+91' + ph_no  # ----cmd. to make call
-		command3 = 'adb shell input tap 276 1636'  # --------------- cmd. to tap the speaker button
-		command1 = 'adb connect 192.168.5.171:5556'
+		command3 = 'adb shell input tap *** ****'  # --------------- cmd. to tap the speaker button
+		command1 = 'adb connect ***.***.*.*:****'
 		speak ( 'calling.. ' + person )
 		os.system ( command1 )
 		time.sleep ( 2 )
@@ -1375,12 +1384,7 @@ def call ( person ) :
 		os.system ( command3 )
 	else :
 		speak ( 'no contact found' )
-
-roott = Tk()
-roott.configure(background = 'black')
-roott.attributes('-fullscreen', True)
-roott.wm_iconbitmap('main.ico')
-roott.title('A.I.')
+		print("NO Contacts FOUND")
 
 def task ( ) :
 	if __name__ == "__main__" :
@@ -1388,7 +1392,7 @@ def task ( ) :
 
 		while True :
 			# if 1:
-			query = miccr ( ).lower ( )  # Converting user query into lower case
+			query = takecommand().lower ( )  # Converting user query into lower case
 
 			if 'open' in query :
 
@@ -1420,7 +1424,7 @@ def task ( ) :
 				results = wikipedia.summary ( query , sentences = 2 )
 				speak ( "According to wikipedia.." )
 				speak ( results )
-				speak ( results )
+				print ( results )
 
 			elif "google" in query :
 				query = query.replace ( "jarvis" , "" )
@@ -1432,6 +1436,7 @@ def task ( ) :
 					pywhatkit.search ( query )
 					result = googleScrap.summary ( query , 1 )
 					speak ( result )
+					print ( result )
 
 				except :
 					speak ( "No speakable output available" )
@@ -1442,9 +1447,6 @@ def task ( ) :
 
 			elif 'draw' in query :
 				kun ( )
-
-			elif 'play song' in query :
-				hhyt ( )
 
 			elif 'youtube' in query :
 				query = query.replace ( 'youtube' , '' )
@@ -1470,7 +1472,7 @@ def task ( ) :
 			elif 'jokes time' in query or 'jokes' in query :
 				joke = pyjokes.get_joke ( )
 				speak ( joke )
-				speak ( joke )
+				print ( joke )
 
 			elif 'play audiobook' in query :
 				yun ( )
@@ -1482,6 +1484,16 @@ def task ( ) :
 				data = BeautifulSoup ( r.text , "html.parser" )
 				temp = data.find ( "div" , class_ = "BNeawe" ).text
 				speak ( f"current{search} is {temp}" )
+				print ( f"current{search} is {temp}" )
+
+			elif "change password" in query:
+				speak("What's the new password")
+				new_pw = input("Enter the new password\n")
+				new_password = open("password.txt","w")
+				new_password.write(new_pw)
+				new_password.close()
+				speak("Done sir")
+				speak(f"Your new password is{new_pw}")
 
 			elif 'weather' in query :
 				search = "temperature in deesa"
@@ -1490,6 +1502,7 @@ def task ( ) :
 				data = BeautifulSoup ( r.text , "html.parser" )
 				temp = data.find ( "div" , class_ = "BNeawe" ).text
 				speak ( f"current{search} is {temp}" )
+				print ( f"current{search} is {temp}" )
 
 			elif 'play game' in query or 'game mode' in query :
 				tkk()
@@ -1514,7 +1527,7 @@ def task ( ) :
 
 			elif 'shutdown the system' in query :
 				speak ( "Are You sure you want to shutdown" )
-				shutdown = miccr ( )
+				shutdown = takecommand()
 				if shutdown == "yes" :
 					os.system ( "shutdown /s /t 1" )
 
@@ -1523,7 +1536,7 @@ def task ( ) :
 
 			elif 'call' in query :
 				speak ( "Whom Do you want to call?" )
-				person = miccr ( )
+				person = input( "Enter name :" )
 				call ( person )
 
 			elif 'story' in query :
@@ -1538,8 +1551,8 @@ def task ( ) :
 				upload_net = wifi.upload ( ) / 1048576
 				download_net = wifi.download ( ) / 1048576
 				speak ( "Wifi Upload Speed is" , upload_net )
-				speak ( "Wifi download speed is " , download_net )
-				speak ( f"Wifi download speed is {download_net}" )
+				print ( "Wifi download speed is " , download_net )
+				print ( f"Wifi download speed is {download_net}" )
 				speak ( f"Wifi Upload speed is {upload_net}" )
 
 			elif 'open gmail' in query :
@@ -1559,22 +1572,18 @@ def task ( ) :
 			elif 'open ebay' in query :
 				webbrowser.open ( "https://www.ebay.com" )
 				speak ( "opening ebay" )
-			elif 'music time' in query or "music" in query :
-				speak ( "ok i am playing music" )
-				music_dir = './music'
-				musics = os.listdir ( music_dir )
-				os.startfile ( os.path.join ( music_dir , musics [ 0 ] ) )
+
 			elif 'good bye' in query :
 				speak ( "good bye" )
 				exit ( )
 
 			elif 'monkey mode' in query :
 				speak ( "Entering Monkey Mode" )
-				speak ( "Entering Monkey Mode" )
+				print ( "Entering Monkey Mode" )
 				while True :
-					monkk = miccr ( )
+					monkk = takecommand()
 					speak ( monkk )
-					speak ( monkk )
+					print ( monkk )
 
 					if monkk == 'exit monkey mode' :
 						task ( )
@@ -1587,7 +1596,7 @@ def task ( ) :
 						   'i am okey ! How are you' ]
 				ans_q = random.choice ( stMsgs )
 				speak ( ans_q )
-				ans_take_from_user_how_are_you = miccr ( )
+				ans_take_from_user_how_are_you = takecommand()
 				if 'fine' in ans_take_from_user_how_are_you or 'happy' in ans_take_from_user_how_are_you or 'okey' in ans_take_from_user_how_are_you :
 					speak ( 'okey..' )
 				elif 'not' in ans_take_from_user_how_are_you or 'sad' in ans_take_from_user_how_are_you or 'upset' in ans_take_from_user_how_are_you :
@@ -1635,7 +1644,7 @@ def task ( ) :
 
 			elif 'focus mode' in query :
 				speak( "Are you sure that you want to enter focus mode :- [1 for YES / 2 for NO " )
-				a = miccr ( )
+				a = input("Enter 1 for yes and 2 for no :  ")
 				if (a == 1) :
 					speak ( "Entering the focus mode...." )
 					is_admin ( )
@@ -1650,18 +1659,18 @@ def task ( ) :
 			elif 'email varda' in query :
 				try :
 					speak ( "What should I say?" )
-					content = miccr ( )
+					content = input("Enter : ")
 					to = 'vardagandhi@gmail.com'
 					sendEmail ( 'vedantgandhi05@gmail.com' , to , content )
 					speak ( "Email has been sent!" )
 				except Exception as e :
-					speak ( e )
+					print ( e )
 					speak ( "Sorry Sir. I was not able to send this email" )
 
 			elif 'email papa' in query :
 				try :
 					speak ( "What should I say?" )
-					content = miccr ( )
+					content = input("Enter : ")
 					to = 'drvjgandhi@gmail.com'
 					sendEmail ( 'vedantgandhi05@gmail.com' , to , content )
 					speak ( "Email has been sent!" )
@@ -1672,15 +1681,15 @@ def task ( ) :
 			elif 'email' in query :
 				try :
 					speak ( "Please tell me the email adress" )
-					quav = miccr ( )
+					quav = input("Enter : ")
 
 					speak ( "What should I say?" )
-					content = miccr ( )
+					content = input("Enter : ")
 					to = quav
 					sendEmail ( to , content )
 					speak ( "Email has been sent!" )
 				except Exception as e :
-					speak ( e )
+					print ( e )
 					speak ( "Sorry Sir. I was not able to send this email" )
 
 			elif 'calculate' in query :
@@ -1697,25 +1706,53 @@ def task ( ) :
 			elif 'thank you' in query :
 				speak ( "you are welcome, sir" )
 
-def guide_task ( ) :
-	print('Hey! I am Jarvis, Your Virtual AI')
-	print('I can help you with variety of tasks!')
+			elif "schedule my day" in query:
+				tasks = [] #Empty list 
+				speak("Do you want to clear old tasks (Plz speak YES or NO)")
+				query = takecommand().lower()
+				if "yes" in query:
+					file = open("tasks.txt","w")
+					file.write(f"")
+					file.close()
+					no_tasks = int(input("Enter the no. of tasks :- "))
+					i = 0
+					for i in range(no_tasks):
+						tasks.append(input("Enter the task :- "))
+						file = open("tasks.txt","a")
+						file.write(f"{i}. {tasks[i]}\n")
+						file.close()
+				elif "no" in query:
+					i = 0
+					no_tasks = int(input("Enter the no. of tasks :- "))
+					for i in range(no_tasks):
+						tasks.append(input("Enter the task :- "))
+						file = open("tasks.txt","a")
+						file.write(f"{i}. {tasks[i]}\n")
+						file.close()
 
-def guide_run ( ) :
-	threading.Thread (target = guide_task ).start()
-	task()
+			elif 'chat with text' in query :
+				os.system('python AIBrain.py')
+				speak('I am now sleeping tell me wake up jarvis to wake me up')
+				osrft = takecommand()
+				if osrft == 'wake up jarvis' :
+					task()
 
-terminal = tkinter.Text (roott)
-terminal.configure (background = 'black')
-terminal.configure (width = 60, height = 30)
-terminal.configure (font = ('arial', 10))
-terminal.place(x = 5, y = 100)
+			elif 'sleep jarvis'	in query :
+				kkuttt = takecommand()
+				if kkuttt == 'wake up now ' :
+					task()
+			
+for i in range(3):
+    a = input("Enter Password to open Jarvis :- ")
+    pw_file = open("password.txt","r")
+    pw = pw_file.read()
+    pw_file.close()
+    if (a==pw):
+        os.system('cls')
+        print("WELCOME SIR")
+        break
+    elif (i==2 and a!=pw):
+        exit()
 
-label = Label(roott, font = ('space age', 35), text = 'Created by Vedant', background = 'black')
-label.place(x = 1000, y = 43)
-label.configure(foreground = 'red')
-
-btn = Button(roott, font = ('Space age', 25), foreground = 'cyan', background = 'black', text = 'Initiate', command = guide_run)
-btn.place(x = 1130, y = 250)
-
-roott.mainloop()
+    elif (a!=pw):
+        print("Try Again")
