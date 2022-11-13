@@ -29,3 +29,10 @@ def ReplyBrain(question,chat_log = None):
     FileLog.write(chat_log_template_update)
     FileLog.close()
     return answer
+
+while True:
+        kalc = takecommand()
+        kk = input("Enter : ")
+        print(ReplyBrain(kk))    
+        if kalc == 'wake up jarvis' :
+            exit()
